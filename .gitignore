@@ -1,0 +1,7 @@
+.venv/
+
+vdrw/vdrw.env
+
+__pycache__/
+*.pyc 
+
