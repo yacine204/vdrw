@@ -5,51 +5,51 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User
 from . import services as userService
 from django.views.decorators.csrf import csrf_exempt
+from .serializers import UserSerializer, LoginSerializer, SignUpSerializer
 
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def login_user(request: Request):
-    password = request.data.get('password')
-    email = request.data.get('email')
-    user = userService.login(email, password)
-    if not user:
-        return Response({"error": "wrong credentials"}, status=401)
-    
-    refresh = RefreshToken.for_user(user)
-    return Response({
-        "access": str(refresh.access_token),
-        "refresh": str(refresh),
-        "user":{
-            "id": user.id,
-            "pseudo": user.pseudo,
-            "email": user.email
-        }
-    })
+    print(request.data)
+    serializer = LoginSerializer(data=request.data)
+    if serializer.is_valid():
+        password = serializer.validated_data.get('password')
+        email = serializer.validated_data.get('email')
+        user = userService.login(email, password)
+        if not user:
+            return Response({"error": "wrong credentials"}, status=401)
+        
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "user": UserSerializer(user).data
+        })
+    return Response(serializer.errors, status=400)
 
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def sign_up(request: Request):
-    email = request.data.get('email')
-    password = request.data.get('password')
-    pseudo = request.data.get('pseudo')
+    print(request.data)
+    serializer = SignUpSerializer(data=request.data)
+    print(serializer)
+    if serializer.is_valid():
+        email = serializer.validated_data.get('email')
+        password = serializer.validated_data.get('password')
+        pseudo = serializer.validated_data.get('pseudo')
 
-    user = userService.signup(email, password, pseudo)
-    if not user:
-        return Response({"error": "email already in use"}, status=400)
-    
-    refresh = RefreshToken.for_user(user)
-    return Response({
-        "access": str(refresh.access_token),
-        "refresh": str(refresh),
-        "user":{
-            "id": user.id,
-            "email": user.email,
-            "pseudo": user.pseudo
-        }
-    }, status=201)
-
+        user = userService.signup(email, password, pseudo)
+        if not user:
+            return Response({"error": "email already in use"}, status=400)
+        
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "user": UserSerializer(user).data
+        }, status=201)
+    return Response(serializer.errors,status=400)

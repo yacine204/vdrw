@@ -3,7 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from typing import Optional
 
 def login(email: str, password: str)-> Optional[User]:
-    # return nthe user instance if credentails are correct else none
+    # return the user instance if credentails are correct else none
     if not email or not password:
         return None
     try:
@@ -16,6 +16,7 @@ def login(email: str, password: str)-> Optional[User]:
     return None
 
 def signup(email: str, password: str, pseudo: str)->Optional[User]:
+    # return user 
     if not email or not password or not pseudo: 
         return None
     if User.objects.filter(email=email).exists():

@@ -6,12 +6,12 @@ class User(models.Model):
 
     pseudo = models.CharField(max_length=250)
     email = models.CharField(max_length=250)
-    createdAt = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     hashed_password = models.CharField(max_length=255)
-    updatedAt = models.DateTimeField(auto_now=True)
-    inGame = models.BooleanField(default=False)
-    isOnline = models.BooleanField(default=True)
-    lastLogin = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    in_game = models.BooleanField(default=False)
+    is_online = models.BooleanField(default=True)
+    last_login = models.DateTimeField(default=timezone.now, null= True, blank=True)
     
     def set_password(self, raw_password: str):
         self.hashed_password = make_password(raw_password)
