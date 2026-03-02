@@ -2,6 +2,13 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.hashers import make_password, check_password
 
+class UserStatus(models.TextChoices):
+    online = "ONLINE", "Online"
+    offline = "OFFLINE", "Offline"
+    drawing = "DRAWING", "Drawing"
+    guessing = "GUESSING", "Guessing"
+
+
 class User(models.Model):
 
     pseudo = models.CharField(max_length=250)
@@ -9,8 +16,7 @@ class User(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     hashed_password = models.CharField(max_length=255)
     updated_at = models.DateTimeField(auto_now=True)
-    in_game = models.BooleanField(default=False)
-    is_online = models.BooleanField(default=True)
+    status = models.CharField(max_length=255,choices=UserStatus.choices, default= UserStatus.offline)
     last_login = models.DateTimeField(default=timezone.now, null= True, blank=True)
     
     def set_password(self, raw_password: str):
@@ -20,4 +26,5 @@ class User(models.Model):
         return check_password(raw_password, self.hashed_password)
     
     class Meta:
-        db_table = "users"
+        db_table = "users" 
+    
