@@ -61,7 +61,7 @@ async def TerminateParty(request:Request):
         print("ERROR:", e)
         return Response({"error": "internal server error"}, status=500)
 
-@api_view(["POST"])
+@api_view(["GET"])
 @authentication_classes([])
 @permission_classes([AllowAny])
 async def GetAllPublicParties(request: Request): 

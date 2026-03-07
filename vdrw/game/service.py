@@ -15,7 +15,7 @@ from .serializers import CreatePartySerializer, CreatePartyMemberSerializer
 
 
 from asgiref.sync import sync_to_async
-
+import asyncio
 class ServiceException(Exception):
     def __init__(self, message, status=400):
         self.message = message
@@ -24,28 +24,40 @@ class ServiceException(Exception):
 
 async def schedule_party_deletion(party_id: int):
     #get total time
-    party = Party.objects.filter(id=party_id).first()
-    total_time = party.round_time * party.round_time
-    
+    party = await sync_to_async(lambda: Party.objects.filter(id=party_id).first())()
+    if not party:
+        return 
+    # Convert minutes to seconds (round_time is in minutes)
+    total_time_seconds = ((party.round_time * party.total_rounds)+1) * 60
+    print(f"Party {party_id} will be deleted in {total_time_seconds} seconds")
+    await asyncio.sleep(total_time_seconds)
+    try:
+        await DeleteParty(party.owner_id)
+        print(f"party {party_id} deleted automatically")
+    except Exception as e:
+        print(f"failed to delete party {party_id}: {e}")
 
 #create a party by a user
-async def CreateParty(user_id: int, data: CreatePartyMemberSerializer)->Optional[Party]:
+async def CreateParty(user_id: int, data: dict)->Optional[Party]:
     #verify if the user exists and whether he's online or not
     user = await User.objects.filter(id=user_id, status=UserStatus.online).afirst()
     if user:
 
+        party_code = generate_random_string(5)
         data = {
             **data,
             "owner": user_id,
-            "code": generate_random_string(5)
+            "code": party_code
         }
 
-        party = CreatePartySerializer(data=data)
-        if party.is_valid():
-            await JoinPrivateParty(user_id, data["code"])
-            await party.asave()
-            return party
-        raise ServiceException(party.errors, status=400)
+        party_serializer = CreatePartySerializer(data=data)
+        is_valid = await sync_to_async(party_serializer.is_valid)()
+        if is_valid:
+            saved_party = await sync_to_async(party_serializer.save)()
+            await JoinPrivateParty(user_id, party_code)
+            asyncio.create_task(schedule_party_deletion(saved_party.id))
+            return saved_party
+        raise ServiceException(party_serializer.errors, status=400)
     raise ServiceException("user not found or not online", status=401) 
 
 #join a private party
@@ -63,9 +75,10 @@ async def JoinPrivateParty(user_id: int, code: str) -> Optional[PartyMember]:
             print("data:",data)
 
             partyMember = CreatePartyMemberSerializer(data=data)
-            if partyMember.is_valid():
-                await partyMember.asave()
-                return partyMember
+            is_valid = await sync_to_async(partyMember.is_valid)()
+            if is_valid:
+                saved_member = await sync_to_async(partyMember.save)()
+                return saved_member
             raise ServiceException(partyMember.errors, status=400)
         raise ServiceException("wrong code", status=403)
     raise ServiceException("user must be online", status=403)
