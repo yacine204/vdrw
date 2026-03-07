@@ -6,6 +6,8 @@ from rest_framework_simplejwt import views as jwt_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
+    path('game/', include('game.urls')),
+
     path('api/token',
          jwt_views.TokenObtainPairView.as_view(),
          name='token_obtain_pair'),

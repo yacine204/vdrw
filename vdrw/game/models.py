@@ -12,6 +12,7 @@ class EntryType(models.TextChoices):
     guess = "A GUESS", "A guess"
     drawing = "A DRAWING", "A drawing"
 
+    
 class PartyStatus(models.TextChoices):
     public = "PUBLIC", "Public"
     private = "PRIVATE", "Private"
@@ -27,7 +28,10 @@ class Party(models.Model):
     created_at= models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     closed_at = models.DateTimeField(null=True, blank=True)
-
+    max_players = models.IntegerField(max_length=6, default=6)
+    current_players = models.IntegerField(max_length=6, default=1)
+    class Meta: 
+        db_table = "party"
 
 class Round(models.Model):
     party = models.ForeignKey(Party,on_delete=models.CASCADE, related_name="round")
@@ -37,16 +41,25 @@ class Round(models.Model):
     started_at = models.TimeField(auto_now_add=True)
     finished_at = models.TimeField(auto_now=True)
 
+    class Meta: 
+        db_table = "round"
+        
 class PartyMember(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="party_member")
-    party = models.ForeignKey(User, on_delete=models.CASCADE, related_name="party_member")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="party_memberships")
+    party = models.ForeignKey(Party, on_delete=models.CASCADE, related_name="members")
     joined_at = models.TimeField(auto_now_add=True)
-    left_at = models.TimeField(auto_now=False)
+    left_at = models.TimeField(null = True, blank=True)
 
+    class Meta: 
+        db_table = "party_member"
+        
 class Entry(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="entry")
-    in_round = models.ForeignKey(Round, on_delete=models.CASCADE, related_name="entry")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_entry")
+    in_round = models.ForeignKey(Round, on_delete=models.CASCADE, related_name="round_entry")
     type_of_entry = models.CharField(choices=EntryType.choices)
     content = models.CharField(max_length=255)
     created_at = models.TimeField(auto_now=True)
 
+    class Meta: 
+        db_table = "entry"
+        

@@ -1,6 +1,9 @@
 from .models import User
+from .models import UserStatus
+
 from django.core.exceptions import ObjectDoesNotExist
 from typing import Optional
+from datetime import datetime
 
 def login(email: str, password: str)-> Optional[User]:
     # return the user instance if credentails are correct else none
@@ -12,6 +15,9 @@ def login(email: str, password: str)-> Optional[User]:
         return None
     
     if user.check_password(password):
+        user.last_login = datetime.now()
+        user.status = UserStatus.online
+        user.save()
         return user
     return None
 
