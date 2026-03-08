@@ -3,8 +3,8 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
-from .service import CreateParty, ServiceException, JoinPrivateParty, DeleteParty, GetPublicParties, JoinPublicParty
-from .serializers import PartySerializer
+from .service import CreateParty, ServiceException, JoinPrivateParty, DeleteParty, GetPublicParties, JoinPublicParty, GetPartyMembers, GetUserInGameMembers
+from .serializers import PartySerializer, PartyMemberSerializer
 from django.views.decorators.csrf import csrf_exempt
 
 @api_view(["POST"])
@@ -34,8 +34,10 @@ async def EnterPrivateParty(request: Request):
         code = request.data["code"]
 
         joined = await JoinPrivateParty(user_id, code)
+        serializer = PartyMemberSerializer(joined)
         if joined: 
-            return Response({"message":"Joined party successfully"}, status=200)
+            return Response({"message":"Joined party successfully",
+                             "party_member":serializer.data}, status=200)
         else: 
             return Response({"message":"Permission Denied"}, status=500)
     except KeyError:
@@ -84,3 +86,35 @@ async def JoinPublic(request: Request):
         return Response({"message":"joined"}, status=200)
     except ServiceException as e:
         return Response({"error": e.message}, status=e.status)
+    
+
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+async def GetPM(request: Request):
+    try:
+        party_id = request.query_params.get("party_id")
+        party_members = await GetPartyMembers(int(party_id))
+        serializer = PartyMemberSerializer(party_members, many=True)
+        return Response({"party_members":serializer.data}, status=200)
+    except ServiceException as e:
+        return Response({"error":e.message}, status=e.status)
+    
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+async def GetUserInGame(request: Request):
+    try:
+        user_id = request.query_params.get("user_id")
+        if not user_id:
+            return Response({"error": "user_id is required"}, status=400)
+        party_member = await GetUserInGameMembers(user_id)
+        if party_member is None:
+            return Response({"error": "user not in any game"}, status=404)
+        serializer = PartyMemberSerializer(party_member)
+        return Response({"user_in_game": serializer.data}, status=200)
+    except ServiceException as e:
+        return Response({"error": e.message}, status=e.status)
+    except Exception as e:
+        print("ERROR:", e)
+        return Response({"error": "internal server error"}, status=500)

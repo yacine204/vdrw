@@ -15,3 +15,8 @@ class PartySerializer(serializers.ModelSerializer):
     class Meta:
         model = Party
         fields = ["id", "name", "code", "party_status", "max_players", "current_players"]
+
+class PartyMemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PartyMember
+        fields = ["id", "joined_at", "user_id", "party_id"]

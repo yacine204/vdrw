@@ -64,6 +64,9 @@ async def CreateParty(user_id: int, data: dict)->Optional[Party]:
 async def JoinPrivateParty(user_id: int, code: str) -> Optional[PartyMember]:
     user = await User.objects.filter(id=user_id).afirst()
     if user:
+        user_in_party = await PartyMember.objects.filter(user_id = user_id).afirst()
+        if user_in_party:
+            raise ServiceException("user already in game", status=403)
         party = await Party.objects.filter(code=code).afirst()
         if party:
 
@@ -119,3 +122,10 @@ async def DeleteParty(user_id)-> Optional[Party]:
 
 async def GetPublicParties()->Optional[List[Party]]:
     return await sync_to_async(list)(Party.objects.filter(party_status=PartyStatus.public, current_players__lt=6))
+
+async def GetPartyMembers(party_id: int)->Optional[list[PartyMember]]:
+    party_members = await sync_to_async(lambda: list(PartyMember.objects.filter(party_id = party_id).all()))()
+    return party_members
+
+async def GetUserInGameMembers(user_id)->Optional[PartyMember]:
+    return await sync_to_async(lambda: PartyMember.objects.filter(user_id=int(user_id)).first())()
