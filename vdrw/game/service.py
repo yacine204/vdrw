@@ -129,3 +129,9 @@ async def GetPartyMembers(party_id: int)->Optional[list[PartyMember]]:
 
 async def GetUserInGameMembers(user_id)->Optional[PartyMember]:
     return await sync_to_async(lambda: PartyMember.objects.filter(user_id=int(user_id)).first())()
+
+async def GetParty(party_id: int)->Optional[Party]:
+    party= await sync_to_async(lambda: (Party.objects.filter(id=party_id).first()))()
+    if party :
+        return party
+    raise ServiceException("no party with that id found", status=404)

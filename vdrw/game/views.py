@@ -3,7 +3,7 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
-from .service import CreateParty, ServiceException, JoinPrivateParty, DeleteParty, GetPublicParties, JoinPublicParty, GetPartyMembers, GetUserInGameMembers
+from .service import CreateParty, ServiceException, JoinPrivateParty, DeleteParty, GetPublicParties, JoinPublicParty, GetPartyMembers, GetUserInGameMembers, GetParty
 from .serializers import PartySerializer, PartyMemberSerializer
 from django.views.decorators.csrf import csrf_exempt
 
@@ -118,3 +118,16 @@ async def GetUserInGame(request: Request):
     except Exception as e:
         print("ERROR:", e)
         return Response({"error": "internal server error"}, status=500)
+    
+
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+async def GetPartyInfo(request: Request):
+    try:
+        party_id = request.query_params.get("party_id")
+        party = await GetParty(party_id)
+        res = PartySerializer(party)
+        return Response({"party":res.data}, status=200)
+    except ServiceException as e:
+        return Response({"error":e.message}, status=e.status)

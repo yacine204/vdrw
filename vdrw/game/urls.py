@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import HostParty, EnterPrivateParty, TerminateParty, GetAllPublicParties, JoinPublic, GetPM, GetUserInGame
+from .views import HostParty, EnterPrivateParty, TerminateParty, GetAllPublicParties, JoinPublic, GetPM, GetUserInGame, GetPartyInfo
 
 urlpatterns=[
     path('host/', HostParty, name='host-party'),
@@ -8,5 +8,6 @@ urlpatterns=[
     path('public-parties/', GetAllPublicParties, name='public-parties'),
     path('join-public/', JoinPublic, name="join-public-party"),
     path('party-members/', GetPM, name="get-party-members"),
-    path('user-in-game/', GetUserInGame, name="get-user-in-game")
+    path('user-in-game/', GetUserInGame, name="get-user-in-game"),
+    path('party-info/', GetPartyInfo, name='party-info')
 ]
