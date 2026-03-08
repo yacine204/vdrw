@@ -1,7 +1,15 @@
+# Python
 .venv/
-
+__pycache__/
+*.pyc
 vdrw/vdrw.env
 
-__pycache__/
-*.pyc 
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+node_modules/
+# OS / editor
+.DS_Store
+*.lognode_modules/
 

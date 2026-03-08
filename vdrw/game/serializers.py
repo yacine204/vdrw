@@ -4,7 +4,7 @@ from .models import Party, PartyMember
 class CreatePartySerializer(serializers.ModelSerializer):
     class Meta:
         model = Party
-        fields = ["code","owner","party_status","current_round","round_time", "total_rounds","created_at"]
+        fields = ["max_players","name","code","owner","party_status","round_time", "total_rounds","created_at"]
 
 class CreatePartyMemberSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,4 +14,4 @@ class CreatePartyMemberSerializer(serializers.ModelSerializer):
 class PartySerializer(serializers.ModelSerializer):
     class Meta:
         model = Party
-        fields = ["id", "code", "party_status", "max_players", "current_players"]
+        fields = ["id", "name", "code", "party_status", "max_players", "current_players"]

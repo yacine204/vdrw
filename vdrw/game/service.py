@@ -83,6 +83,28 @@ async def JoinPrivateParty(user_id: int, code: str) -> Optional[PartyMember]:
         raise ServiceException("wrong code", status=403)
     raise ServiceException("user must be online", status=403)
 
+async def JoinPublicParty(user_id, party_id):
+    user = await User.objects.filter(id=user_id).afirst()
+    if not user:
+        raise ServiceException({"user not found"}, status=404)
+    user_in_party = await PartyMember.objects.filter(user_id = user_id).afirst()
+    if user_in_party: 
+        raise ServiceException({"user already in the game"}, status=403)
+    
+    party = await Party.objects.filter(id=party_id).afirst()
+    if not party:
+        raise ServiceException("party not found", status=404)
+    if party.max_players - party.current_players == 0 :
+        raise ServiceException("Party is full", status=403)
+    data = {"user": user_id, "party": party_id}
+    new_player = CreatePartyMemberSerializer(data=data)
+    is_valid = await sync_to_async(new_player.is_valid)()
+    if is_valid:
+        saved_member = await sync_to_async(new_player.save)()
+        return saved_member
+    raise ServiceException(new_player.errors, status=400)
+
+
 async def DeleteParty(user_id)-> Optional[Party]:
     user = await User.objects.filter(id=user_id).afirst()
     if user is None:

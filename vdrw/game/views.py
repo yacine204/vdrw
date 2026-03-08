@@ -3,8 +3,9 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
-from .service import CreateParty, ServiceException, JoinPrivateParty, DeleteParty, GetPublicParties
+from .service import CreateParty, ServiceException, JoinPrivateParty, DeleteParty, GetPublicParties, JoinPublicParty
 from .serializers import PartySerializer
+from django.views.decorators.csrf import csrf_exempt
 
 @api_view(["POST"])
 @authentication_classes([])
@@ -70,3 +71,16 @@ async def GetAllPublicParties(request: Request):
         serializer = PartySerializer(public_parties, many=True)
         return Response(serializer.data, status=200)
     return Response("no parties available", status=404)
+
+@csrf_exempt
+@api_view(["POST"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+async def JoinPublic(request: Request):
+    try:
+        user_id = request.data.get("user_id")
+        party_id = request.data.get("party_id")
+        joined_public = await JoinPublicParty(user_id, party_id)
+        return Response({"message":"joined"}, status=200)
+    except ServiceException as e:
+        return Response({"error": e.message}, status=e.status)

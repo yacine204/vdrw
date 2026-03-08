@@ -18,6 +18,7 @@ class PartyStatus(models.TextChoices):
     private = "PRIVATE", "Private"
 
 class Party(models.Model):
+    name = models.CharField(max_length=100, null=True, blank=True)
     code = models.CharField(max_length=5)
     owner = models.OneToOneField(User,on_delete=models.CASCADE,related_name="party")
     party_status = models.CharField(choices=PartyStatus.choices, default=PartyStatus.public)
