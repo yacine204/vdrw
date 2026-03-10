@@ -1,6 +1,7 @@
 import { useState } from "react"
 import user_urls from "../api/user";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Signup(){
     const [user, setUser] = useState({
@@ -8,6 +9,7 @@ function Signup(){
         email: "",
         password: ""
     })
+    const navigate = useNavigate()
 
     function handleOnChange(e: React.ChangeEvent<HTMLInputElement>) {
         const { name, value } = e.target;
@@ -23,6 +25,7 @@ function Signup(){
             console.log(response.data)
             localStorage.setItem("token", response.data.token)
             localStorage.setItem("user", response.data.user)
+            navigate('/menu')
         }catch(err){
             console.log(err)
             throw err

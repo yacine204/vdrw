@@ -4,8 +4,11 @@ import Home from "./pages/home";
 import Login from "./pages/login";
 import Signup from "./pages/signup";
 import Join from "./pages/join";
-
-
+import Chat from "./pages/game_interface/chat";
+import Canvas from "./pages/game_interface/canvas";
+import Vdrw from "./pages/game_interface/vdrw";
+import Host from "./pages/host";
+import Menu from "./pages/menu";
 
 function App() {
   const [user, setUser] = useState<any>(null);
@@ -22,13 +25,17 @@ function App() {
       localStorage.removeItem("user");
     }
   }, []);
-
   return (
     <Routes>
       <Route path='/' element={<Home></Home>}></Route>
       <Route path='/login' element={<Login></Login>}></Route>
       <Route path="/signup" element={<Signup></Signup>}></Route>
       <Route path="/join" element={<Join user={user}></Join>}></Route>
+      <Route path="/chat" element={<Chat user={user}></Chat>}></Route>
+      <Route path="/canvas" element={<Canvas></Canvas>}></Route>
+      <Route path='/vdrw' element={<Vdrw user={user}></Vdrw>}></Route>
+      <Route path="/host" element={<Host user={user}></Host>}></Route>
+      <Route path='menu' element = {<Menu user={user}></Menu>}></Route>
     </Routes>
   )};
 

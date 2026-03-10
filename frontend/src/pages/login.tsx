@@ -2,7 +2,10 @@ import { useState } from "react";
 import axios from "axios";
 import user_urls
  from "../api/user";
+import { useNavigate } from "react-router-dom";
 function Login() {
+  const navigate = useNavigate()
+
   const [user, setUser] = useState({
     email: "",
     password: ""
@@ -26,7 +29,7 @@ function Login() {
         localStorage.setItem("token", response.data.access)
         localStorage.setItem("user", JSON.stringify(response.data.user))
         console.log(response.data)
-
+        navigate('/menu')
     }catch(err){
         console.log(err)
         throw err

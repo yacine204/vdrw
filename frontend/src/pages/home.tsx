@@ -8,7 +8,7 @@ function Home(){
 
             <div>
                 <button><a href="login">Login</a></button>
-                <button>Sign Up</button>
+                <button><a href="signup">Sign Up</a></button>
             </div>
         </>
     )

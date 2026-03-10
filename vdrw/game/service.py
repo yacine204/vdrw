@@ -28,7 +28,7 @@ async def schedule_party_deletion(party_id: int):
     if not party:
         return 
     # Convert minutes to seconds (round_time is in minutes)
-    total_time_seconds = ((party.round_time * party.total_rounds)+1) * 60
+    total_time_seconds = (((party.round_time+0.3)*party.total_rounds)+1)*60
     print(f"Party {party_id} will be deleted in {total_time_seconds} seconds")
     await asyncio.sleep(total_time_seconds)
     try:
