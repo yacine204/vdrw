@@ -2,9 +2,7 @@
 
 ## Overview
 
-VDRW is a fun, interactive real-time drawing application where users can draw artwork and challenge their friends to guess what they're drawing. It's like an online version of Pictionary! The app supports multiplayer sessions with real-time updates, allowing seamless collaboration and guessing through WebSockets.
-
-The frontend is built with React for a responsive UI, while the backend uses Django for robust API handling and real-time features powered by Django Channels, ASGI, and Redis.
+A real-time collaborative drawing and guessing application, similar to Pictionary. It demonstrates full-stack real-time communication, multi-user synchronization, and WebSocket integration.
 
 ## Features
 
@@ -124,7 +122,7 @@ The frontend is located in the `frontend/` directory.
 1. Open the app in your browser (frontend URL).
 2. Register a new account or log in.
 3. Create a new party/room or join an existing one.
-4. Start drawing on the canvas - your friends in the same room will see updates in real-time.
+4. Start drawing on the canvas.
 5. Use the chat to guess what others are drawing or give hints.
 6. Enjoy the game! The app handles real-time synchronization via WebSockets, so everything updates instantly.
 
