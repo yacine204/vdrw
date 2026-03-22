@@ -31,7 +31,7 @@ async def schedule_party_deletion(party_id: int):
         logger.info("Party %s already deleted before scheduling", party_id)
         return
     # Convert minutes to seconds (round_time is in minutes)
-    total_time_seconds = (((party["round_time"]+0.3)*party["total_rounds"])+1)*60
+    total_time_seconds = (((party["round_time"]+0.3)*party["total_rounds"])+0.3)*60
     logger.info("Party %s will be deleted in %s seconds", party_id, total_time_seconds)
     await asyncio.sleep(total_time_seconds)
     try:

@@ -9,7 +9,18 @@ from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv()
+# Load environment variables from common locations (.env.local takes precedence if present)
+# Load environment variables from common locations (.env.local highest priority)
+_ENV_PATHS = [
+    BASE_DIR / "vdrw" / ".env.local",
+    BASE_DIR / "vdrw" / ".env.production",
+    BASE_DIR / ".env.local",
+    BASE_DIR / ".env.production",
+    BASE_DIR / ".env",
+]
+for _env_path in _ENV_PATHS:
+    if _env_path.exists():
+        load_dotenv(_env_path, override=False)
 
 
 def _csv_env(name: str, default=None):
@@ -21,6 +32,11 @@ def _csv_env(name: str, default=None):
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 REDIS_URL = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0")
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST") or "localhost"
+DB_PORT = os.getenv("DB_PORT") or 5432
 tmpPostgres = urlparse(DATABASE_URL) if DATABASE_URL else None
 
 # Quick-start development settings - unsuitable for production
@@ -61,7 +77,6 @@ INSTALLED_APPS = [
     'chat',
     'channels',
     'corsheaders'
-    
 ]
 
 REST_FRAMEWORK = {
@@ -86,11 +101,20 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = False
-CORS_ALLOWED_ORIGINS = [
-    'https://vdrw-vercel-deployement.vercel.app',
-    'https://vdrw.vercel.app'
-]
+CORS_ALLOW_ALL_ORIGINS = os.getenv("CORS_ALLOW_ALL_ORIGINS", "False").lower() == "true"
+# In local dev, default to wide-open CORS unless explicitly overridden
+if DEBUG and os.getenv("CORS_ALLOW_ALL_ORIGINS") is None:
+    CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOWED_ORIGINS = _csv_env(
+    "CORS_ALLOWED_ORIGINS",
+    [
+        'https://vdrw-vercel-deployement.vercel.app',
+        'https://vdrw.vercel.app',
+        'http://127.0.0.1:5173',  # local Vite
+        'http://localhost:5173',   # local Vite
+    ],
+)
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = _csv_env("CSRF_TRUSTED_ORIGINS")
 
@@ -128,6 +152,17 @@ if tmpPostgres:
             'OPTIONS': dict(parse_qsl(tmpPostgres.query)),
         }
     }
+elif DB_NAME and DB_USER and DB_PASSWORD:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': DB_NAME,
+            'USER': DB_USER,
+            'PASSWORD': DB_PASSWORD,
+            'HOST': DB_HOST,
+            'PORT': DB_PORT,
+        }
+    }
 else:
     DATABASES = {
         'default': {
@@ -136,8 +171,8 @@ else:
         }
     }
 
-if not tmpPostgres and not DEBUG:
-    raise ValueError("DATABASE_URL must be set in production")
+if not (tmpPostgres or DB_NAME) and not DEBUG:
+    raise ValueError("DATABASE_URL or DB_NAME must be set in production")
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
