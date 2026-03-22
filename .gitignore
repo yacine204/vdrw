@@ -13,3 +13,5 @@ node_modules/
 .DS_Store
 *.lognode_modules/
 
+.env.local
+.env.production

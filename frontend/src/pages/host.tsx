@@ -8,6 +8,7 @@ type PartyType = {
   party_status: "PRIVATE" | "PUBLIC";
   total_rounds: number;
   round_time: number;
+  max_players: number;
 };
 
 type User = {
@@ -16,20 +17,19 @@ type User = {
   email: string;
 };
 
-
 function Host({ user }: { user: User }) {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  
   const [party, setParty] = useState<PartyType>({
     name: "",
     party_status: "PUBLIC",
     total_rounds: 1,
     round_time: 1,
+    max_players: 1,
   });
 
   function handleOnChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) {
     const { name, value } = e.target;
 
@@ -43,15 +43,17 @@ function Host({ user }: { user: User }) {
   }
 
   async function handleHosting() {
-  try {
-    const response = await axios.post(game_urls.host, {user_id: user.id, data:party});
-    console.log("party created:", response.data);
-    navigate('/vdrw')
-    
-  } catch (err: any) {
-    console.log(err.response?.data); // VERY IMPORTANT
+    try {
+      const response = await axios.post(game_urls.host, {
+        user_id: user.id,
+        data: party,
+      });
+      console.log("party created:", response.data);
+      navigate("/vdrw");
+    } catch (err: any) {
+      console.log(err.response?.data); // VERY IMPORTANT
+    }
   }
-}
   if (!user) return <div>must be logged</div>;
 
   return (
@@ -94,11 +96,13 @@ function Host({ user }: { user: User }) {
         />
       </div>
 
-      <button
-        onClick={handleHosting}
-      >
-        click
-      </button>
+      <input
+        max={6}
+        onChange={handleOnChange}
+        value={party.max_players}
+        placeholder="max players"
+      ></input>
+      <button onClick={handleHosting}>click</button>
     </div>
   );
 }
