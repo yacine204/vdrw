@@ -3,7 +3,7 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
-from .service import CreateParty, ServiceException, JoinPrivateParty, DeleteParty, GetPublicParties, JoinPublicParty, GetPartyMembers, GetUserInGameMembers, GetParty
+from .service import CreateParty, ServiceException, JoinPrivateParty, DeleteParty, GetPublicParties, JoinPublicParty, GetPartyMembers, GetUserInGameMembers, GetParty, IsHost
 from .serializers import PartySerializer, PartyMemberSerializer
 from django.views.decorators.csrf import csrf_exempt
 
@@ -53,8 +53,10 @@ async def EnterPrivateParty(request: Request):
 @permission_classes([AllowAny])
 async def TerminateParty(request:Request):
     try:
-        user_id = request.data["user_id"]
-        await DeleteParty(user_id)
+        user_id = request.data.get("user_id") or request.query_params.get("user_id")
+        if not user_id:
+            return Response({"error": "user_id is required"}, status=400)
+        await DeleteParty(int(user_id))
         return Response({"message":"Party deleted"}, status=200)
     except KeyError:
         return Response({"error": "missing required fields"}, status=400)
@@ -133,3 +135,17 @@ async def GetPartyInfo(request: Request):
         return Response({"party":res.data}, status=200)
     except ServiceException as e:
         return Response({"error":e.message}, status=e.status)
+    
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+async def is_host(request: Request):
+    try:
+        user_id = request.query_params["user_id"]
+        result = await IsHost(user_id)
+        return Response({"is_host": result}, status=200)
+    except KeyError:
+        return Response({"error": "missing user_id"}, status=400)
+    except Exception as e:
+        print("ERROR:", e)
+        return Response({"error": "internal server error"}, status=500)
