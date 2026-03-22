@@ -1,10 +1,8 @@
 # VDRW: Real-Time Drawing and Guessing App
-# https://vdrw-vercel-deployement.vercel.app
+## Try it out: https://vdrw.vercel.app
 ## Overview
 
 VDRW is a fun, interactive real-time drawing application where users can draw artwork and challenge their friends to guess what they're drawing. It's like an online version of Pictionary! The app supports multiplayer sessions with real-time updates, allowing seamless collaboration and guessing through WebSockets.
-
-The frontend is built with React for a responsive UI, while the backend uses Django for robust API handling and real-time features powered by Django Channels, ASGI, and Redis.
 
 ## Features
 
