@@ -8,7 +8,9 @@ const game_urls = {
     party_members: base_url+'party-members/',
     user_in_game: base_url+'user-in-game/',
     party_info: base_url+'party-info/',
-    host: base_url+'host/'
+    host: base_url+'host/',
+    terminate: base_url+'terminate/',
+    is_host: base_url+'is-host/'
 }
 
 export default game_urls

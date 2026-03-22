@@ -13,8 +13,10 @@ export function useDrawing({ canvasRef, party_id, user, round_duration }: {
   const wsRef = useRef<WebSocket | null>(null)
   const localStrokesRef = useRef<Stroke[]>([])
 
-  // Prefer env override; otherwise match current origin so production picks up .env.production
-  const wsBase = (import.meta.env.VITE_WS_URL as string) || `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}`
+  // Prefer explicit env; fall back to API base; lastly current origin (dev)
+  const wsBase = (import.meta.env.VITE_WS_URL as string)
+    || ((import.meta.env.VITE_BASE_URL as string | undefined)?.replace(/^http/i, "ws").replace(/\/$/, ""))
+    || `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}`
   
   const [color, setColor] = useState("#2a1a08")
   const [size, setSize] = useState(4)

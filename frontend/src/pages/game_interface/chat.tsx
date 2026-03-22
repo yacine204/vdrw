@@ -256,8 +256,10 @@ function Chat({ user }: { user: { id: number; pseudo: string; email: string } })
   const [input, setInput] = useState<string>("")
   const bottomRef = useRef<HTMLDivElement | null>(null)
 
-  // Prefer env override; otherwise match current origin so production picks up .env.production
-  const wsBase = (import.meta.env.VITE_WS_URL as string) || `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}`
+  // Prefer explicit env; fall back to API base; lastly current origin (dev)
+  const wsBase = (import.meta.env.VITE_WS_URL as string)
+    || ((import.meta.env.VITE_BASE_URL as string | undefined)?.replace(/^http/i, "ws").replace(/\/$/, ""))
+    || `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}`
 
   const get_party_id = async () => {
     try {
