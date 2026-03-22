@@ -155,7 +155,3 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 APPEND_SLASH = True
-
-INSTALLED_APPS += ['corsheaders']
-MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
-CORS_ALLOWED_ORIGINS = ["https://your-app.vercel.app"]
