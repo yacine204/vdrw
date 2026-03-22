@@ -4,6 +4,15 @@
 
 VDRW is a fun, interactive real-time drawing application where users can draw artwork and challenge their friends to guess what they're drawing. It's like an online version of Pictionary! The app supports multiplayer sessions with real-time updates, allowing seamless collaboration and guessing through WebSockets.
 
+## Preview
+
+<div align="center">
+   <img src="preview/Screenshot%20from%202026-03-22%2023-51-45.png" alt="Lobby and party list" width="360" />
+   <img src="preview/Screenshot%20from%202026-03-22%2023-52-24.png" alt="Join flow" width="360" />
+   <img src="preview/Screenshot%20from%202026-03-22%2023-53-17.png" alt="Drawing interface" width="360" />
+   <img src="preview/Screenshot%20from%202026-03-22%2023-58-20.png" alt="Chat and canvas" width="360" />
+</div>
+
 ## Features
 
 - **Real-Time Drawing**: Draw on a canvas and see updates in real-time across connected users.
