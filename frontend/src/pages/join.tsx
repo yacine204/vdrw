@@ -1,6 +1,7 @@
 import axios from "axios"
 import game_urls from "../api/game"
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 type party_status_type = "PUBLIC" | "PRIVATE"
 type party_type = {
@@ -235,6 +236,7 @@ const styles = `
 `
 
 function Join({ user }: { user: { id: number; pseudo: string; email: string } | null }) {
+  const navigate = useNavigate()
   const [public_parties, setPB] = useState<party_type[]>([])
   const [party_code, setPartyCode] = useState<string>("")
   const [searched, setSearched] = useState(false)
@@ -253,7 +255,9 @@ function Join({ user }: { user: { id: number; pseudo: string; email: string } | 
   async function joinPrivateParty(code: string) {
     try {
       const response = await axios.post(game_urls.join_private_party, { user_id: user?.id, code })
-      localStorage.setItem("party_id", response?.data?.party_member?.party_id)
+      const partyId = response?.data?.party_member?.party_id
+      if (partyId) localStorage.setItem("party_id", partyId)
+      navigate("/vdrw", { replace: true })
     } catch (err) {
       console.log(err)
       throw err
@@ -266,7 +270,9 @@ function Join({ user }: { user: { id: number; pseudo: string; email: string } | 
         user_id: user?.id,
         party_id: party.id,
       })
-      localStorage.setItem("party_id", response?.data?.party_member?.party_id)
+      const partyId = response?.data?.party_member?.party_id
+      if (partyId) localStorage.setItem("party_id", partyId)
+      navigate("/vdrw", { replace: true })
     } catch (err) {
       console.log(err)
       throw err
