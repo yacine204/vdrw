@@ -11,6 +11,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
 
+
+def _csv_env(name: str, default=None):
+    value = os.getenv(name)
+    if value:
+        return [item.strip() for item in value.split(",") if item.strip()]
+    return default if default is not None else []
+
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 REDIS_URL = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0")
 tmpPostgres = urlparse(DATABASE_URL) if DATABASE_URL else None
@@ -19,12 +27,22 @@ tmpPostgres = urlparse(DATABASE_URL) if DATABASE_URL else None
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-0-1oy^*#t-zyk_nby@kz1404$t+8)+yy_%n7ud-ei@2v=2-cod'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = []
+if not SECRET_KEY:
+    SECRET_KEY = "dev-insecure"
+    if not DEBUG:
+        raise ValueError("SECRET_KEY must be set in production")
+
+ALLOWED_HOSTS = _csv_env(
+    "ALLOWED_HOSTS",
+    default=["localhost", "127.0.0.1"] if DEBUG else [],
+)
+if not ALLOWED_HOSTS and not DEBUG:
+    raise ValueError("ALLOWED_HOSTS must be set in production")
 
 
 # Application definition
@@ -57,16 +75,20 @@ REST_FRAMEWORK = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = _csv_env("CORS_ALLOWED_ORIGINS")
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = _csv_env("CSRF_TRUSTED_ORIGINS")
 
 ROOT_URLCONF = 'vdrw.urls'
 
@@ -109,6 +131,9 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+
+if not tmpPostgres and not DEBUG:
+    raise ValueError("DATABASE_URL must be set in production")
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -153,5 +178,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 APPEND_SLASH = True
