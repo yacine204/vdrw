@@ -37,12 +37,11 @@ if not SECRET_KEY:
     if not DEBUG:
         raise ValueError("SECRET_KEY must be set in production")
 
-ALLOWED_HOSTS = _csv_env(
-    "ALLOWED_HOSTS",
-    default=["localhost", "127.0.0.1"] if DEBUG else [],
-)
-if not ALLOWED_HOSTS and not DEBUG:
-    raise ValueError("ALLOWED_HOSTS must be set in production")
+ALLOWED_HOSTS = [
+    'vdrw.onrender.com',
+    'localhost',
+    '127.0.0.1',
+]
 
 
 # Application definition
