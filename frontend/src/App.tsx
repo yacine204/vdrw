@@ -1,5 +1,6 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import Home from "./pages/home";
 import Login from "./pages/login";
 import Signup from "./pages/signup";
@@ -9,6 +10,7 @@ import Canvas from "./pages/game_interface/canvas";
 import Vdrw from "./pages/game_interface/vdrw";
 import Host from "./pages/host";
 import Menu from "./pages/menu";
+import game_urls from "./api/game";
 
 function StaticCanvasPreview() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -25,6 +27,8 @@ function StaticCanvasPreview() {
 
 function App() {
 
+  const navigate = useNavigate();
+
   const [user] = useState<any>(() => {
   try {
     const userStr = localStorage.getItem("user");
@@ -33,6 +37,23 @@ function App() {
     return null;
   }
   });
+
+  useEffect(() => {
+    const redirectIfInGame = async () => {
+      if (!user?.id) return;
+      try {
+        const res = await axios.get(game_urls.user_in_game, { params: { user_id: user.id } });
+        const partyId = res.data?.user_in_game?.party_id;
+        if (partyId) {
+          navigate("/vdrw", { replace: true });
+        }
+      } catch {
+        // ignore lookup failures
+      }
+    };
+
+    redirectIfInGame();
+  }, [user?.id, navigate]);
 
   return (
     <Routes>

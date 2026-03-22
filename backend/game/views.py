@@ -126,7 +126,9 @@ async def GetUserInGame(request: Request):
 async def GetPartyInfo(request: Request):
     try:
         party_id = request.query_params.get("party_id")
-        party = await GetParty(party_id)
+        if not party_id:
+            return Response({"error": "party_id is required"}, status=400)
+        party = await GetParty(int(party_id))
         res = PartySerializer(party)
         return Response({"party":res.data}, status=200)
     except ServiceException as e:
