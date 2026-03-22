@@ -32,7 +32,7 @@ function Vdrw({
       setRoundDuration(partyRes.data.party.round_time ?? 60);
 
       const hostRes = await axios.get(game_urls.is_host, {
-        params: { user_id: user.id },
+        params: { user_id: user.id, party_id },
       });
       setIsHost(hostRes.data.is_host);
     };

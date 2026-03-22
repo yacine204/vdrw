@@ -3,7 +3,7 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
-from .service import CreateParty, ServiceException, JoinPrivateParty, DeleteParty, GetPublicParties, JoinPublicParty, GetPartyMembers, GetUserInGameMembers, GetParty, IsHost
+from .service import CreateParty, ServiceException, JoinPrivateParty, DeleteParty, GetPublicParties, JoinPublicParty, GetPartyMembers, GetUserInGameMembers, GetParty, IsHost, IsHostOfParty
 from .serializers import PartySerializer, PartyMemberSerializer
 from django.views.decorators.csrf import csrf_exempt
 
@@ -141,8 +141,15 @@ async def GetPartyInfo(request: Request):
 @permission_classes([AllowAny])
 async def is_host(request: Request):
     try:
-        user_id = request.query_params["user_id"]
-        result = await IsHost(user_id)
+        user_id = request.query_params.get("user_id")
+        party_id = request.query_params.get("party_id")
+        if not user_id:
+            return Response({"error": "missing user_id"}, status=400)
+
+        if party_id:
+            result = await IsHostOfParty(int(user_id), int(party_id))
+        else:
+            result = await IsHost(int(user_id))
         return Response({"is_host": result}, status=200)
     except KeyError:
         return Response({"error": "missing user_id"}, status=400)

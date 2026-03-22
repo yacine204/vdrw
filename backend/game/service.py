@@ -151,3 +151,8 @@ async def GetParty(party_id: int)->Optional[Party]:
 async def IsHost(user_id: int)->bool:
     party = await sync_to_async(lambda: (Party.objects.filter(owner_id=int(user_id)).first()))()
     return True if party else False
+
+
+async def IsHostOfParty(user_id: int, party_id: int) -> bool:
+    party = await sync_to_async(lambda: Party.objects.filter(id=int(party_id), owner_id=int(user_id)).first())()
+    return True if party else False
