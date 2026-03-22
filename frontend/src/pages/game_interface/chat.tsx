@@ -256,7 +256,8 @@ function Chat({ user }: { user: { id: number; pseudo: string; email: string } })
   const [input, setInput] = useState<string>("")
   const bottomRef = useRef<HTMLDivElement | null>(null)
 
-  const wsBase = (import.meta.env.VITE_WS_URL as string) || (import.meta.env.DEV ? "ws://127.0.0.1:8000" : "wss://vdrw.onrender.com")
+  // Prefer env override; otherwise match current origin so production picks up .env.production
+  const wsBase = (import.meta.env.VITE_WS_URL as string) || `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}`
 
   const get_party_id = async () => {
     try {
