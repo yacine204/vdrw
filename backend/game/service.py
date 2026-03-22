@@ -6,7 +6,6 @@ from .models import PartyStatus
 from users.models import UserStatus
 from typing import Optional, List
 from datetime import datetime
-from time import timezone
 #helpers
 from .helpers import generate_random_string
 
@@ -32,7 +31,7 @@ async def schedule_party_deletion(party_id: int):
     print(f"Party {party_id} will be deleted in {total_time_seconds} seconds")
     await asyncio.sleep(total_time_seconds)
     try:
-        await DeleteParty(party.owner_id)
+        await DeletePartyById(party_id)
         print(f"party {party_id} deleted automatically")
     except Exception as e:
         print(f"failed to delete party {party_id}: {e}")
@@ -114,6 +113,14 @@ async def DeleteParty(user_id)-> Optional[Party]:
         raise ServiceException("user doesnt exist", status=404)
     
     party = await Party.objects.filter(owner_id = user_id).afirst()
+    if party is None:
+        raise ServiceException("party doesnt exist", status=404)
+    await party.adelete()
+    return party
+
+
+async def DeletePartyById(party_id: int) -> Optional[Party]:
+    party = await Party.objects.filter(id=party_id).afirst()
     if party is None:
         raise ServiceException("party doesnt exist", status=404)
     await party.adelete()
