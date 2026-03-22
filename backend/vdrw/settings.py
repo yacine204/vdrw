@@ -39,6 +39,7 @@ if not SECRET_KEY:
 
 ALLOWED_HOSTS = [
     'vdrw.onrender.com',
+    '.onrender.com',
     'localhost',
     '127.0.0.1',
 ]
