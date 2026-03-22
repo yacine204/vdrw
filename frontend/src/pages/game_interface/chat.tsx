@@ -256,6 +256,8 @@ function Chat({ user }: { user: { id: number; pseudo: string; email: string } })
   const [input, setInput] = useState<string>("")
   const bottomRef = useRef<HTMLDivElement | null>(null)
 
+  const wsBase = (import.meta.env.VITE_WS_URL as string) || (import.meta.env.DEV ? "ws://127.0.0.1:8000" : "wss://vdrw.onrender.com")
+
   const get_party_id = async () => {
     try {
       const response = await axios.get(game_urls.user_in_game, { params: { user_id: user?.id } })
@@ -275,7 +277,7 @@ function Chat({ user }: { user: { id: number; pseudo: string; email: string } })
 
   useEffect(() => {
     if (!party_id) return
-    const ws = new WebSocket(`ws://127.0.0.1:8000/ws/chat/room/${party_id}/?pseudo=${user?.pseudo}`)
+    const ws = new WebSocket(`${wsBase}/ws/chat/room/${party_id}/?pseudo=${user?.pseudo}`)
     wsRef.current = ws
 
     ws.onopen = () => setIsConnected(true)

@@ -25,7 +25,7 @@ function StaticCanvasPreview() {
 
 function App() {
 
-  const [user, setUser] = useState<any>(() => {
+  const [user] = useState<any>(() => {
   try {
     const userStr = localStorage.getItem("user");
     return userStr ? JSON.parse(userStr) : null;
