@@ -141,6 +141,6 @@ For production, consider deploying with a proper ASGI server like Daphne or Uvic
 
 Feel free to fork the repo, make improvements, and submit pull requests. Focus on adding features like better drawing tools or AI guessing!
 
-## License
-
-This project is open-source under the MIT License.
+# TODO
+- [ ] add/refine ui
+- [ ] email verificaion
