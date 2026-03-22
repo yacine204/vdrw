@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Canvas from "./canvas";
 import Brush from "./brush";
@@ -12,6 +13,7 @@ function Vdrw({
   user: { id: number; pseudo: string; email: string };
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const navigate = useNavigate();
   const [party_id, setPartyId] = useState<number | null>(null);
   const [round_duration, setRoundDuration] = useState(60);
 
@@ -26,7 +28,7 @@ function Vdrw({
       const partyRes = await axios.get(game_urls.party_info, {
         params: { party_id },
       });
-      setRoundDuration(partyRes.data.party.round_duration);
+      setRoundDuration(partyRes.data.party.round_time ?? 60);
     };
     if (user) fetchSettings();
   }, [user?.id]);
@@ -48,6 +50,12 @@ function Vdrw({
     sendStroke,
     startGame,
   } = useDrawing({ canvasRef, party_id: party_id!, user, round_duration });
+
+  useEffect(() => {
+    if (gameOver) {
+      navigate("/menu", { replace: true });
+    }
+  }, [gameOver, navigate]);
 
   if (!party_id) return <div className="p-6 text-[#4a3520]">Loading...</div>;
 

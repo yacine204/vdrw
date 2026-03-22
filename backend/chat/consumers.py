@@ -1,6 +1,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 import asyncio
+from game.service import DeletePartyById
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -216,6 +217,15 @@ class DrawConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_send(self.room_group_name, {
             "type": "game_over_message",
         })
+
+        # Clean up party after game ends to avoid stale rooms
+        try:
+            await DeletePartyById(int(self.party_id))
+        except Exception as e:
+            print(f"Failed to delete party {self.party_id} after game end: {e}")
+
+        # Remove in-memory room state
+        draw_rooms.pop(self.party_id, None)
 
     # Message handlers for channel layer
     async def stroke_message(self, event):

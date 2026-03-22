@@ -14,7 +14,16 @@ class CreatePartyMemberSerializer(serializers.ModelSerializer):
 class PartySerializer(serializers.ModelSerializer):
     class Meta:
         model = Party
-        fields = ["id", "name", "code", "party_status", "max_players", "current_players"]
+        fields = [
+            "id",
+            "name",
+            "code",
+            "party_status",
+            "max_players",
+            "current_players",
+            "round_time",
+            "total_rounds",
+        ]
 
 class PartyMemberSerializer(serializers.ModelSerializer):
     class Meta:
