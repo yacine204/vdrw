@@ -24,20 +24,16 @@ function StaticCanvasPreview() {
 }
 
 function App() {
-  const [user, setUser] = useState<any>(null);
 
-  useEffect(() => {
-    try {
-      const userStr = localStorage.getItem("user");
-      if (userStr) {
-        const parsedUser = JSON.parse(userStr);
-        setUser(parsedUser);
-      }
-    } catch (error) {
-      console.error("Failed to parse user from localStorage:", error);
-      localStorage.removeItem("user");
-    }
-  }, []);
+  const [user, setUser] = useState<any>(() => {
+  try {
+    const userStr = localStorage.getItem("user");
+    return userStr ? JSON.parse(userStr) : null;
+  } catch {
+    return null;
+  }
+  });
+
   return (
     <Routes>
       <Route path='/' element={<Home></Home>}></Route>
@@ -48,7 +44,7 @@ function App() {
       <Route path="/canvas" element={<StaticCanvasPreview />}></Route>
       <Route path='/vdrw' element={<Vdrw user={user}></Vdrw>}></Route>
       <Route path="/host" element={<Host user={user}></Host>}></Route>
-      <Route path='menu' element = {<Menu user={user}></Menu>}></Route>
+      <Route path='/menu' element = {<Menu user={user}></Menu>}></Route>
     </Routes>
   )};
 
