@@ -12,6 +12,8 @@ export function useDrawing({ canvasRef, party_id, user, round_duration }: {
 }) {
   const wsRef = useRef<WebSocket | null>(null)
   const localStrokesRef = useRef<Stroke[]>([])
+
+  const wsBase = (import.meta.env.VITE_WS_URL as string) || (import.meta.env.DEV ? "ws://127.0.0.1:8000" : "wss://vdrw.onrender.com")
   
   const [color, setColor] = useState("#2a1a08")
   const [size, setSize] = useState(4)
@@ -64,7 +66,7 @@ export function useDrawing({ canvasRef, party_id, user, round_duration }: {
   useEffect(() => {
     if (!party_id || !user) return
 
-    const ws = new WebSocket(`ws://127.0.0.1:8000/ws/draw/room/${party_id}/?pseudo=${user.pseudo}`)
+    const ws = new WebSocket(`${wsBase}/ws/draw/room/${party_id}/?pseudo=${user.pseudo}`)
     wsRef.current = ws
 
     ws.onopen = () => {
