@@ -15,6 +15,9 @@ from .serializers import CreatePartySerializer, CreatePartyMemberSerializer
 
 from asgiref.sync import sync_to_async
 import asyncio
+import logging
+
+logger = logging.getLogger(__name__)
 class ServiceException(Exception):
     def __init__(self, message, status=400):
         self.message = message
@@ -23,18 +26,22 @@ class ServiceException(Exception):
 
 async def schedule_party_deletion(party_id: int):
     #get total time
-    party = await sync_to_async(lambda: Party.objects.filter(id=party_id).first())()
+    party = await sync_to_async(lambda: Party.objects.filter(id=party_id).values("round_time", "total_rounds").first())()
     if not party:
-        return 
+        logger.info("Party %s already deleted before scheduling", party_id)
+        return
     # Convert minutes to seconds (round_time is in minutes)
-    total_time_seconds = (((party.round_time+0.3)*party.total_rounds)+1)*60
-    print(f"Party {party_id} will be deleted in {total_time_seconds} seconds")
+    total_time_seconds = (((party["round_time"]+0.3)*party["total_rounds"])+1)*60
+    logger.info("Party %s will be deleted in %s seconds", party_id, total_time_seconds)
     await asyncio.sleep(total_time_seconds)
     try:
-        await DeletePartyById(party_id)
-        print(f"party {party_id} deleted automatically")
+        deleted = await DeletePartyById(party_id)
+        if deleted:
+            logger.info("Party %s deleted automatically", party_id)
+        else:
+            logger.info("Party %s was already gone when scheduler ran", party_id)
     except Exception as e:
-        print(f"failed to delete party {party_id}: {e}")
+        logger.exception("failed to delete party %s: %s", party_id, e)
 
 #create a party by a user
 async def CreateParty(user_id: int, data: dict)->Optional[Party]:
@@ -111,20 +118,18 @@ async def DeleteParty(user_id)-> Optional[Party]:
     user = await User.objects.filter(id=user_id).afirst()
     if user is None:
         raise ServiceException("user doesnt exist", status=404)
-    
-    party = await Party.objects.filter(owner_id = user_id).afirst()
-    if party is None:
+
+    deleted_count, _ = await Party.objects.filter(owner_id=user_id).adelete()
+    if deleted_count == 0:
         raise ServiceException("party doesnt exist", status=404)
-    await party.adelete()
-    return party
+    return None
 
 
 async def DeletePartyById(party_id: int) -> Optional[Party]:
-    party = await Party.objects.filter(id=party_id).afirst()
-    if party is None:
-        raise ServiceException("party doesnt exist", status=404)
-    await party.adelete()
-    return party
+    deleted_count, _ = await Party.objects.filter(id=party_id).adelete()
+    if deleted_count == 0:
+        return False
+    return True
 
 
 async def GetPublicParties()->Optional[List[Party]]:
