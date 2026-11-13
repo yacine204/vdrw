@@ -186,7 +186,7 @@ class DrawConsumer(AsyncWebsocketConsumer):
                 })
                 await asyncio.sleep(1)
 
-            # GUESSING PHASE - show each drawing one by one, 30s each
+            # GUESSING PHASE - show each drawing one by one
             room["phase"] = "guessing"
             drawings = [{"player": p, "strokes": s} for p, s in room["strokes"].items()]
             room["drawings"] = drawings
@@ -205,7 +205,7 @@ class DrawConsumer(AsyncWebsocketConsumer):
                 })
 
                 # 30 seconds per drawing to guess
-                for t in range(30, 0, -1):
+                for t in range(round_duration, 0, -1):
                     await self.channel_layer.group_send(self.room_group_name, {
                         "type": "timer_message",
                         "timeLeft": t,
