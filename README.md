@@ -6,7 +6,7 @@ VDRW is a fun, interactive real-time drawing application where users can draw ar
 
 ## Preview
 
-<video src="vdrw_demo.mp4" autoplay loop muted playsinline></video>
+![preview](./vdrw_demo.gif)
 
 ## Features
 
